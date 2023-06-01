@@ -1,4 +1,14 @@
-const Notes = ({ onChangeTitle, valueTitle,onChangeNotes,valueNotes, onsubmit }:any) => {
+import { ChangeEvent, FormEventHandler } from "react"
+
+type notes={
+    onChangeTitle:(event:ChangeEvent<HTMLInputElement>)=> void,
+    valueTitle:string,
+    onChangeNotes:(event:ChangeEvent<HTMLTextAreaElement>)=> void,
+    valueNotes:string,
+    onsubmit:(FormEventHandler<HTMLFormElement>)
+}
+
+const Notes = ({ onChangeTitle, valueTitle,onChangeNotes,valueNotes, onsubmit }:notes) => {
     return (
 
             <div className="flex flex-col items-center mt-20 border-2 border-gray-200 w-max mx-auto p-5 rounded-md">

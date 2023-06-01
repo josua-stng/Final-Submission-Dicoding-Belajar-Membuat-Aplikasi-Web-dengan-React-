@@ -1,6 +1,14 @@
 import { TrashIcon,ArchiveBoxIcon } from '@heroicons/react/24/solid'
+type note={
+    noteId:string,
+    noteTitle:string,
+    noteDate:string,
+    noteNotes:string,
+    deleteNotes:Function,
+    isArchive:Function
+}
 
-const ListNotes = ({noteId,noteTitle,noteDate,noteNotes,deleteNotes,isArchive}:any) => {
+const ListNotes = ({noteId,noteTitle,noteDate,noteNotes,deleteNotes,isArchive}:note) => {
     return (
         <div key={noteId} className=" ">
             <div className="border-2 border-black p-5 rounded-lg">

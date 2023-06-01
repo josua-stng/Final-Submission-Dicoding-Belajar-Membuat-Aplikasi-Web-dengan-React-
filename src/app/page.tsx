@@ -1,31 +1,38 @@
 "use client"
-import { useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import Navbar from "./components/navbar";
 import Notes from "./components/notes";
 import ListNotes from "./components/list_notes";
 import { v4 as uuidv4 } from 'uuid';
 import Swal from "sweetalert2";
+type notesData={
+  id: string,
+  title: string,
+  notes: string,
+  date: string,
+  isArchive: boolean,
+}
 
 export default function Home() {
   const [valueNavbar, setValueNavbar] = useState("");
   const [valueInputTitle, setValueInputTittle] = useState("");
   const [valueNotes, setValueNotes] = useState("");
-  const [notes, setNotes] = useState<any>([]);
+  const [notes, setNotes] = useState<notesData[]>([]);
   const [archiveValue] = useState(false);
-  const handlerNavbarValue = (event: any) => {
+  const handlerNavbarValue = (event: ChangeEvent<HTMLInputElement>) => {
     setValueNavbar(event.target.value);
   }
 
-  const handlerValueTitle = (event: any) => {
+  const handlerValueTitle = (event: ChangeEvent<HTMLInputElement>) => {
     setValueInputTittle(event.target.value);
   }
 
-  const handlerInputNotes = (event: any) => {
+  const handlerInputNotes = (event: ChangeEvent<HTMLTextAreaElement>) => {
     setValueNotes(event.target.value);
   }
 
-  const isArchive = (id: any) => {
-    const updatedNotes = notes.map((note: any) => {
+  const isArchive = (id: string) => {
+    const updatedNotes = notes.map((note: notesData) => {
       if (note.id === id) {
         return { ...note, isArchive: !note.isArchive };
       }
@@ -34,7 +41,7 @@ export default function Home() {
     setNotes(updatedNotes);
   };
 
-  const deleteNotes = (id: number) => {
+  const deleteNotes = (id: string) => {
     Swal.fire({
       title: 'Are you sure?',
       text: "You won't be able to revert this!",
@@ -45,7 +52,7 @@ export default function Home() {
       confirmButtonText: 'Yes, delete it!'
     }).then((result) => {
       if (result.isConfirmed) {
-        const filterNotes = notes.filter((note: any) => note.id !== id);
+        const filterNotes = notes.filter((note:notesData) => note.id !== id);
         setNotes(filterNotes);
         Swal.fire(
           'Deleted!',
@@ -56,7 +63,7 @@ export default function Home() {
     })
   }
 
-  const submitValue = (event: any) => {
+  const submitValue = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!valueInputTitle.trim() || !valueNotes.trim()) {
       Swal.fire({
@@ -88,8 +95,8 @@ export default function Home() {
       setValueNotes("");
     }
   }
-  const activeNotes = notes.filter((note: any) => !note.isArchive);
-  const archivedNotes = notes.filter((note: any) => note.isArchive);
+  const activeNotes = notes.filter((note: notesData) => !note.isArchive);
+  const archivedNotes = notes.filter((note: notesData) => note.isArchive);
   return (
     <div>
       <Navbar
@@ -106,7 +113,7 @@ export default function Home() {
       <div className="p-10">
         <h1 className="mb-5 font-bold text-2xl">All Notes</h1>
         <div className="max-w-7xl grid grid-cols-4  mx-auto gap-5">
-          {activeNotes.filter((note: any) => {
+          {activeNotes.filter((note: notesData) => {
             if (valueNavbar === "") {
               return note
             }
@@ -114,7 +121,7 @@ export default function Home() {
               return note
             }
             return false;
-          }).map((note: any) => {
+          }).map((note: notesData) => {
             return (
               <ListNotes
                 key={note.id}
@@ -136,7 +143,7 @@ export default function Home() {
       <div className="p-10">
         <h1 className="mb-5 font-bold text-2xl">Archive Notes</h1>
         <div className="max-w-7xl grid grid-cols-4 gap-5 mx-auto">
-          {archivedNotes.filter((note: any) => {
+          {archivedNotes.filter((note: notesData) => {
             if (valueNavbar === "") {
               return note
             }
@@ -144,7 +151,7 @@ export default function Home() {
               return note
             }
             return false;
-          }).map((note: any) => {
+          }).map((note: notesData) => {
             return (
               <ListNotes
                 key={note.id}
