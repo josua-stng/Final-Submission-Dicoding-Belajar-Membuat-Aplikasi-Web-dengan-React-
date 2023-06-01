@@ -1,113 +1,166 @@
-import Image from 'next/image'
+"use client"
+import { useState } from "react";
+import Navbar from "./components/navbar";
+import Notes from "./components/notes";
+import ListNotes from "./components/list_notes";
+import { v4 as uuidv4 } from 'uuid';
+import Swal from "sweetalert2";
 
 export default function Home() {
+  const [valueNavbar, setValueNavbar] = useState("");
+  const [valueInputTitle, setValueInputTittle] = useState("");
+  const [valueNotes, setValueNotes] = useState("");
+  const [notes, setNotes] = useState<any>([]);
+  const [archiveValue] = useState(false);
+  const handlerNavbarValue = (event: any) => {
+    setValueNavbar(event.target.value);
+  }
+
+  const handlerValueTitle = (event: any) => {
+    setValueInputTittle(event.target.value);
+  }
+
+  const handlerInputNotes = (event: any) => {
+    setValueNotes(event.target.value);
+  }
+
+  const isArchive = (id: any) => {
+    const updatedNotes = notes.map((note: any) => {
+      if (note.id === id) {
+        return { ...note, isArchive: !note.isArchive };
+      }
+      return note;
+    });
+    setNotes(updatedNotes);
+  };
+
+  const deleteNotes = (id: number) => {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const filterNotes = notes.filter((note: any) => note.id !== id);
+        setNotes(filterNotes);
+        Swal.fire(
+          'Deleted!',
+          'Your file has been deleted.',
+          'success'
+        )
+      }
+    })
+  }
+
+  const submitValue = (event: any) => {
+    event.preventDefault();
+    if (!valueInputTitle.trim() || !valueNotes.trim()) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Oops...',
+        text: 'title or notes cant empty!'
+      })
+    }
+    else if (!valueInputTitle.trim() && !valueNotes.trim()) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'title and notes cant empty!'
+      })
+    }
+    else {
+      const currentDate = new Date();
+      const getDate = currentDate.toLocaleDateString('id-ID')
+      const getNotes = {
+        id: uuidv4(),
+        title: valueInputTitle,
+        notes: valueNotes,
+        date: getDate,
+        isArchive: archiveValue,
+      }
+      const handlerNotes = [...notes, getNotes];
+      setNotes(handlerNotes);
+      setValueInputTittle("");
+      setValueNotes("");
+    }
+  }
+  const activeNotes = notes.filter((note: any) => !note.isArchive);
+  const archivedNotes = notes.filter((note: any) => note.isArchive);
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <div>
+      <Navbar
+        onChange={handlerNavbarValue}
+        value={valueNavbar}
+      />
+      <Notes
+        onChangeTitle={handlerValueTitle}
+        valueTitle={valueInputTitle}
+        onChangeNotes={handlerInputNotes}
+        valueNotes={valueNotes}
+        onsubmit={submitValue}
+      />
+      <div className="p-10">
+        <h1 className="mb-5 font-bold text-2xl">All Notes</h1>
+        <div className="max-w-7xl grid grid-cols-4  mx-auto gap-5">
+          {activeNotes.filter((note: any) => {
+            if (valueNavbar === "") {
+              return note
+            }
+            else if (note.title.toLowerCase().includes(valueNavbar.toLowerCase())) {
+              return note
+            }
+            return false;
+          }).map((note: any) => {
+            return (
+              <ListNotes
+                key={note.id}
+                noteId={note.id}
+                noteTitle={note.title}
+                noteDate={note.date}
+                noteNotes={note.notes}
+                deleteNotes={deleteNotes}
+                isArchive={isArchive}
+
+              />
+            )
+          })
+          }
+
         </div>
       </div>
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
+      <div className="p-10">
+        <h1 className="mb-5 font-bold text-2xl">Archive Notes</h1>
+        <div className="max-w-7xl grid grid-cols-4 gap-5 mx-auto">
+          {archivedNotes.filter((note: any) => {
+            if (valueNavbar === "") {
+              return note
+            }
+            else if (note.title.toLowerCase().includes(valueNavbar.toLowerCase())) {
+              return note
+            }
+            return false;
+          }).map((note: any) => {
+            return (
+              <ListNotes
+                key={note.id}
+                noteId={note.id}
+                noteTitle={note.title}
+                noteDate={note.date}
+                noteNotes={note.notes}
+                deleteNotes={deleteNotes}
+                isArchive={isArchive}
+              />
+            )
+          })
+          }
+
+        </div>
       </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800 hover:dark:bg-opacity-30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore the Next.js 13 playground.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    </div>
   )
 }
