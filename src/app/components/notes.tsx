@@ -11,9 +11,9 @@ type notes={
 const Notes = ({ onChangeTitle, valueTitle,onChangeNotes,valueNotes, onsubmit }:notes) => {
     return (
 
-            <div className="flex flex-col items-center mt-20 border-2 border-gray-200 w-max mx-auto p-5 rounded-md">
+            <div className="flex flex-col items-center mt-20 border-2 border-gray-200 w-full max-w-sm mx-auto p-5 rounded-md">
                 <h3 className="mb-5 text-lg font-bold">New Notes</h3>
-                <form action="" onSubmit={onsubmit} className=" flex flex-col w-80">
+                <form action="" onSubmit={onsubmit} className="flex flex-col w-full ">
                     <input
                         className="border-2 border-black px-2 py-2 rounded-md mb-2"
                         type="text"

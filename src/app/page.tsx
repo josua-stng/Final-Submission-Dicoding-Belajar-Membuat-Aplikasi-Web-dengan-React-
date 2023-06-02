@@ -112,7 +112,7 @@ export default function Home() {
       />
       <div className="p-10">
         <h1 className="mb-5 font-bold text-2xl">All Notes</h1>
-        <div className="max-w-7xl grid grid-cols-4  mx-auto gap-5">
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mx-auto gap-5">
           {activeNotes.filter((note: notesData) => {
             if (valueNavbar === "") {
               return note
@@ -142,7 +142,7 @@ export default function Home() {
 
       <div className="p-10">
         <h1 className="mb-5 font-bold text-2xl">Archive Notes</h1>
-        <div className="max-w-7xl grid grid-cols-4 gap-5 mx-auto">
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4  mx-auto gap-5">
           {archivedNotes.filter((note: notesData) => {
             if (valueNavbar === "") {
               return note
